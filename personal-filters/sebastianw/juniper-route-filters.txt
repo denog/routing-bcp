@@ -1,0 +1,77 @@
+policy-options {
+    policy-statement bgp-reject-private-as {
+        term reject-private-as {
+            from as-path private;
+            then reject;
+        }
+    }
+    policy-statement bgp-reject-garbage {
+        term default-route {
+            from {
+                route-filter 0.0.0.0/0 exact reject;
+            }
+        }
+        term reserved-space {
+            from {
+                route-filter 0.0.0.0/8 orlonger reject;
+                route-filter 127.0.0.0/8 orlonger reject;
+                route-filter 10.0.0.0/8 orlonger reject;
+                route-filter 172.16.0.0/12 orlonger reject;
+                route-filter 192.168.0.0/16 orlonger reject;
+                route-filter 224.0.0.0/4 orlonger reject;
+                route-filter 240.0.0.0/4 orlonger reject;
+                route-filter 169.254.0.0/16 orlonger reject;
+                route-filter 192.0.2.0/24 orlonger reject;
+                route-filter 198.51.100.0/24 orlonger reject;
+                route-filter 203.0.113.0/24 orlonger reject;
+                route-filter 100.64.0.0/10 orlonger reject;
+            }
+        }
+        term small-nets {
+            from {
+                route-filter 0.0.0.0/0 prefix-length-range /25-/32 reject;
+            }
+        }
+    }
+    policy-statement bgp-reject-garbage-v6 {
+        term ebgp-relaxed {
+            from {
+                family inet6;
+                route-filter 3ffe::/16 orlonger;
+                route-filter 0000::/8 orlonger;
+                route-filter 2001:db8::/32 orlonger;
+                route-filter 2001::/32 exact next policy;
+                route-filter 2001::/32 longer;
+                route-filter 2002::/16 exact next policy;
+                route-filter 2002::/16 longer;
+                route-filter fe00::/9 orlonger;
+                route-filter ff00::/8 orlonger;
+                route-filter 2000::/3 prefix-length-range /49-/128;
+                route-filter 0::/0 orlonger;
+            }
+            then reject;
+        }
+    }
+    policy-statement bgp-upstream1-in {
+        term default {
+            then {
+                metric 0;
+                local-preference 100;
+                accept;
+            }
+        }
+
+    }
+    policy-statement deny-everything {
+        then reject;
+    }
+    as-path private ".* 64512-65535 .*";
+}
+
+
+use as:
+
+v4:
+import [ bgp-reject-garbage bgp-reject-private-as bgp-upstream1-in deny-everything ]
+v6:
+import [ bgp-reject-garbage-v6 bgp-reject-private-as bgp-upstream1-in deny-everything ]
