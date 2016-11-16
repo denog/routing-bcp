@@ -1,0 +1,125 @@
+policy-options {
+    prefix-list default-route-v6 {
+        ::/0;
+    }
+    prefix-list private-v6 {    
+        /* RFC4193 */           
+        fc00::/7;               
+    }                           
+    prefix-list multicast-v6 {  
+        ff00::/8;               
+    }
+    prefix-list not-routed-v6 { 
+        /* IPv6 Testing Address Allocation (RFC2471) and 6bone (IPv6 Testing Address Allocation) Phaseout (RFC3701) */
+        3ffe::/16;              
+        /* reserved for multiple purposes (RFC4291) */
+        0000::/8;               
+        /* IPv6 Address Prefix Reserved for Documentation (RFC3849) */
+        2001:db8::/32;          
+        /* Deprecated (previously ORCHID) (RFC4843) */
+        2001:10::/28;           
+        /* IPv6 Benchmarking Methodology for Network Interconnect Devices (RFC5180) */
+        2001:2::/48;            
+    }                           
+    /* Teredo: Tunneling IPv6 over UDP through Network Address Translations (NATs) (RFC4380) */
+    prefix-list teredo-v6 {
+        2001::/32;
+    }
+    /* Connection of IPv6 Domains via IPv4 Clouds (RFC3056) */
+    prefix-list 6to4-v6 {
+        2002::/16;
+    }
+    /* TODO: replace $YOUR_ASN with your ASN, replace $YOUR_PREFIX with your actual prefix or if multiple use multiple lines */
+    prefix-list as$YOUR_ASN-supernets-v6 {
+        $YOUR_PREFIX;
+    }
+    /* TODO: add the IXP LANs your connected to here; this example shows the DE-CIX LAN */
+    prefix-list ixp-lans-v6 {
+        2001:7f8::/64;
+    }
+    policy-statement reject-bad-routes-v6 {
+        term reject-default-route {
+            from {
+                prefix-list default-route-v6;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-private {
+            from {
+                prefix-list-filter private-v6 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-multicast {
+            from {
+                prefix-list-filter multicast-v6 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-teredo-more-specifics {
+            from {
+                prefix-list-filter teredo-v6 longer;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-6to4-more-specifics {
+            from {
+                prefix-list-filter 6to4-v6 longer;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-not-routed {
+            from {
+                prefix-list-filter not-routed-v6 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        /* TODO: replace $YOUR_ASN with your ASN */
+        term reject-as$YOUR_ASN {
+            from {
+                /* TODO: replace $YOUR_ASN with your ASN to match your prefix-list from above */
+                prefix-list-filter as$YOUR_ASN-supernets-v6 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-ixp-lans {
+            from {
+                prefix-list-filter ixp-lans-v6 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-more-specifics {
+            from {
+                route-filter 0::/0 prefix-length-range /49-/128;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+    }
+}

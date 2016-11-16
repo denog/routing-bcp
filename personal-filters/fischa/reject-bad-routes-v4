@@ -1,0 +1,113 @@
+policy-options {
+    prefix-list default-route-v4 {
+        0.0.0.0/0;
+    }
+    prefix-list private-v4 {
+        /* RFC1918 */
+        10.0.0.0/8;
+        /* RFC1918 */
+        172.16.0.0/12;
+        /* RFC1918 */
+        192.168.0.0/16;
+    }
+    prefix-list multicast-v4 {
+        224.0.0.0/4;
+    }
+    prefix-list not-routed-v4 {
+        /* reserved for self-identification (RFC1122) */
+        0.0.0.0/8;
+        /* reserved for Shared Address Space (RFC6598) */
+        100.64.0.0/10;
+        /* reserved for Loopback (RFC1122) */
+        127.0.0.0/8;
+        /* reserved for Link Lokal (RFC3927) */
+        169.254.0.0/16;
+        /* reserved for IANA IPv4 Special Purpose Address Registry (RFC5736) */
+        192.0.0.0/24;
+        /* reserved for TEST-NET-1 (RFC5737) */
+        192.0.2.0/24;
+        /* reserved for Network Interconnect Device Benchmark Testing (RFC2544) */
+        198.18.0.0/15;
+        /* reserved for TEST-NET-2 (RFC5737) */
+        198.51.100.0/24;
+        /* reserved for TEST-NET-3 (RFC5737) */
+        203.0.113.0/24;
+        /* Reserved for future use (formerly "Class E") (RFC1112) */
+        240.0.0.0/4;
+    }
+    /* TODO: replace $YOUR_ASN with your ASN, replace $YOUR_PREFIX with your actual prefix or if multiple use multiple lines */
+    prefix-list as$YOUR_ASN-supernets-v4 {
+        $YOUR_PREFIX;
+    }
+    /* TODO: add the IXP LANs your connected to here; this example shows the DE-CIX LAN */
+    prefix-list ixp-lans-v4 {
+        80.81.192.0/22;
+    }
+    policy-statement reject-bad-routes-v4 {
+        term reject-default-route {
+            from {
+                prefix-list default-route-v4;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-private {
+            from {
+                prefix-list-filter private-v4 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-multicast {
+            from {
+                prefix-list-filter multicast-v4 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-not-routed {
+            from {
+                prefix-list-filter not-routed-v4 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        /* TODO: replace $YOUR_ASN with your ASN */
+        term reject-as$YOUR_ASN {
+            from {
+                /* TODO: replace $YOUR_ASN with your ASN to match your prefix-list from above */
+                prefix-list-filter as$YOUR_ASN-supernets-v4 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-ixp-lans {
+            from {
+                prefix-list-filter ixp-lans-v4 orlonger;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+        term reject-more-specifics {
+            from {
+                route-filter 0.0.0.0/0 prefix-length-range /25-/32;
+            }
+            then {
+                trace;
+                reject;
+            }
+        }
+    }
+}
