@@ -40,13 +40,13 @@ Verify config and apply::
     commit check
     commit and-quit
 
-Now you can use the filter at the beginning of your policy chain either below the peergroup or neighbor::
+Now you can use the filter at the beginning of your policy chain either below the peergroup or neighbor (don't forget to add reject-bad-as-path as well)::
 
     configure
     edit protocols bgp group $some_peergroup neighbor $some_neighbor
-    set import [ reject-bad-routes-v4 $some_policy $some_other_policy ]
+    set import [ reject-bad-routes-v4 reject-bad-as-path $some_policy $some_other_policy ]
 
     edit protocols bgp group $some_peergroup
-    set import [ reject-bad-routes-v4 $some_policy $some_other_policy ]
+    set import [ reject-bad-routes-v4 reject-bad-as-path $some_policy $some_other_policy ]
 
 NOTE: Remember to check if you got the right policy for IPv4 or IPv6 applied. Otherwise it won't work.
