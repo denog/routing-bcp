@@ -1,0 +1,144 @@
+community-set any-own
+  # INSERT COMMUNITIES HERE
+  # $AS:*
+end-set
+
+prefix-set martians
+ # IPv4
+ #
+ # Default Route
+ 0.0.0.0/0,
+ # "this" network (RFC5735)
+ 0.0.0.0/8 le 32,
+ # Private-use networks (RFC1918)
+ 10.0.0.0/8 le 32,
+ # Carrier-grade NAT (RFC6598)
+ 100.64.0.0/10 le 32,
+ # Loopback (RFC1122)
+ 127.0.0.0/8 le 32,
+ # Link local (RFC3927)
+ 169.254.0.0/16 le 32,
+ # Private-use networks (RFC1918)
+ 172.16.0.0/12 le 32,
+ # IETF protocol assignments (RFC5736)
+ 192.0.0.0/24 le 32,
+ # TEST-NET-1 / Blackhole (RFC5737)
+ 192.0.2.0/24 le 32,
+ # Private-use networks (RFC1918)
+ 192.168.0.0/16 le 32,
+ # Network interconnect device benchmark testing (RFC2544)
+ 198.18.0.0/15 le 32,
+ # TEST-NET-2 (RFC5737)
+ 198.51.100.0/24 le 32,
+ # TEST-NET-3 (RFC5737)
+ 203.0.113.0/24 le 32,
+ # Multicast / Reserved
+ 224.0.0.0/3 le 32,
+ #
+ # IPv6
+ #
+ # Default Route
+ ::/0,
+ # IETF reserved Address(formerly IPv4-compatible IPv6 Address
+ ::/96 le 128,
+ # Unspecified Address
+ ::/128,
+ # Loop back Address
+ ::1/128,
+ # IPv4-mapped IPv6 Address
+ ::ffff:0:0/96 le 128,
+ # Discard-Only Address
+ 100::/64 le 128,
+ # TEREDO Address
+ 2001::/32 le 128,
+ # Benchmarking Address
+ 2001:2::/48 le 128,
+ # ORCHID Address
+ 2001:10::/28 le 128,
+ # Documentation Address
+ 2001:db8::/32 le 128,
+ # Unique-local Address
+ fc00::/7 le 128,
+ # Link-local Address
+ fe80::/10 le 128,
+ # IETF reserved Address(formerly Site-local Address)
+ fec0::/10 le 128,
+ # Multicast Address
+ ff00::/8 le 128
+end-set
+
+as-path-set bogon-asns
+  # RFC7607
+  ios-regex '_0_',
+  # 2 to 4 byte ASN migrations
+  passes-through '23456',
+  # RFC5398 and documentation ASNs
+  passes-through '[64496..64511]',
+  # RFC 6996, private ASNs
+  passes-through '[64512..65535]',
+  # RFC 5398 and documentation ASNs
+  passes-through '[65536..65551]',
+  # IANA reserved
+  passes-through '[65552..131071]',
+  # RFC6996, private ASNs
+  passes-through '[4200000000..4294967295]'
+end-set
+
+prefix-set own-prefixes
+  # INSERT PREFIXES HERE
+  # something/16 le 32
+end-set
+
+prefix-set IX-prefixes
+  # INSERT PEERING-LANs HERE
+  # something/24 le 32
+end-set
+
+prefix-set peer-prefixes
+  # INSERT LINK SUBNETS HERE
+  # something/31 le 32
+end-set
+
+route-policy deny-bogon-prefixes
+  if (destination in martians) then
+    drop
+  endif
+  pass
+end-policy
+
+route-policy deny-bogon-asns
+  if as-path in bogon-asns then
+    drop
+  endif
+  pass
+end-policy
+
+route-policy deny-own-prefixes
+  if (destination in own-prefixes) then
+    drop
+  endif
+end-policy
+
+route-policy deny-IX-prefixes
+  if (destination in IX-prefixes) then
+    drop
+  endif
+  pass
+end-policy
+
+route-policy deny-peer-prefixes
+  if (destination in peer-prefixes) then
+    drop
+  endif
+  pass
+end-policy
+
+route-policy sanity-check
+  delete community in any-own
+  apply deny-bogon-prefixes
+  apply deny-bogon-asns
+  apply deny-own-prefixes
+  apply deny-IX-prefixes
+  apply deny-peer-prefixes
+  pass
+end-policy
