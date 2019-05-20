@@ -1,0 +1,38 @@
+# referenced objects used in import/export terms
+
+set policy-options as-path AS-PATH-HOP-LIMIT ".{30,}"
+
+set policy-options as-path-group BOGON-ASNS as-path RFC7607-ZERO ".* 0 .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC4893-AS-TRANS ".* 23456 .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC5398-EXAMPLES1 ".* [64496-64511] .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC5398-EXAMPLES2 ".* [65536-65551] .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC6996-PRIVATE1 ".* [64512-65499] .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC6996-PRIVATE2 ".* [65501-65534] .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC6996-PRIVATE3 ".* [4200000000-4294967294] .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC6996-LAST16 ".* 65535 .*"
+set policy-options as-path-group BOGON-ASNS as-path RFC6996-LAST32 ".* 4294967295 .*"
+set policy-options as-path-group BOGON-ASNS as-path IANA-RESERVED ".* [65552-131071] .*"
+
+set policy-options prefix-list 4-BOGON-PREFIXES 0.0.0.0/8
+set policy-options prefix-list 4-BOGON-PREFIXES 10.0.0.0/8
+set policy-options prefix-list 4-BOGON-PREFIXES 100.64.0.0/10
+set policy-options prefix-list 4-BOGON-PREFIXES 127.0.0.0/8
+set policy-options prefix-list 4-BOGON-PREFIXES 169.254.0.0/16
+set policy-options prefix-list 4-BOGON-PREFIXES 172.16.0.0/12
+set policy-options prefix-list 4-BOGON-PREFIXES 192.0.2.0/24
+set policy-options prefix-list 4-BOGON-PREFIXES 192.168.0.0/16
+set policy-options prefix-list 4-BOGON-PREFIXES 198.18.0.0/15
+set policy-options prefix-list 4-BOGON-PREFIXES 198.51.100.0/24
+set policy-options prefix-list 4-BOGON-PREFIXES 203.0.113.0/24
+set policy-options prefix-list 4-BOGON-PREFIXES 224.0.0.0/4
+set policy-options prefix-list 4-BOGON-PREFIXES 240.0.0.0/4
+
+# ix network where connected to
+set policy-options prefix-list 4-IXP-PREFIXES 80.81.192.0/21
+set policy-options prefix-list 4-IXP-PREFIXES 80.81.202.0/24
+set policy-options prefix-list 4-IXP-PREFIXES 80.81.203.0/24
+set policy-options prefix-list 4-IXP-PREFIXES 80.249.208.0/21
+set policy-options prefix-list 4-IXP-PREFIXES 91.206.52.0/23
+set policy-options prefix-list 4-IXP-PREFIXES 185.1.58.0/24
+set policy-options prefix-list 4-IXP-PREFIXES 185.1.74.0/26
+set policy-options prefix-list 4-IXP-PREFIXES 193.203.0.0/23

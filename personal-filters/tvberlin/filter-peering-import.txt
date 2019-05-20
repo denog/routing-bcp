@@ -1,0 +1,72 @@
+# first filter stage - ix level
+
+term FILTER-PREFIX-LENGTH {
+    from {
+        route-filter 0.0.0.0/0 prefix-length-range /0-/7;
+        route-filter 0.0.0.0/0 prefix-length-range /25-/32;
+    }
+    then reject;
+}
+term REJECT-ANX-PREFIXES {
+    from {
+        prefix-list-filter 4-AS47147 orlonger;
+    }
+    then reject;
+}
+term REJECT-BOGON-ASNS {
+    from as-path-group BOGON-ASNS;
+    then reject;
+}
+term REJECT-BOGON-PREFIXES {
+    from {
+        prefix-list-filter 4-BOGON-PREFIXES orlonger;
+    }
+    then reject;
+}
+term REJECT-IXP-PREFIXES {
+    from {
+        prefix-list-filter 4-IXP-PREFIXES orlonger;
+    }
+    then reject;
+}
+term REJECT-TOO-MANY-HOPS {
+    from as-path AS-PATH-HOP-LIMIT;
+    then reject;
+}
+}
+term RPKI-VALIDATION-VALID {
+    from validation-database valid;
+    then {
+        validation-state valid;
+        community add ANX_ORIGIN_RPKI_VALID;
+    }
+}
+term RPKI-VALIDATION-INVALID {
+    from validation-database invalid;
+    then {
+        validation-state invalid;
+        community add ANX_ORIGIN_RPKI_INVALID;
+    }
+}
+term RPKI-VALIDATION-UNKNOWN {
+    from validation-database unknown;
+    then {
+        validation-state unknown;
+        community add ANX_ORIGIN_RPKI_UNKNOWN;
+    }
+}
+
+# second stage - peer level
+
+term RPKI_REJECT_INVALID {
+    from community ANX_ORIGIN_RPKI_INVALID;
+    then reject;
+}
+term PEERING {
+    from {
+        prefix-list-filter 4-AS-PEER orlonger;
+    }
+    then {
+        accept;
+    }
+}

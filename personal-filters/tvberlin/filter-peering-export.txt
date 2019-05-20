@@ -1,0 +1,40 @@
+# first filter stage - ix level
+
+term FILTER-PREFIX-LENGTH {
+    from {
+        route-filter 0.0.0.0/0 prefix-length-range /0-/7;
+        route-filter 0.0.0.0/0 prefix-length-range /25-/32;
+    }
+    then reject;
+}
+term REJECT-BOGON-ASNS {
+    from as-path-group BOGON-ASNS;
+    then reject;
+}
+term REJECT-BOGON-PREFIXES {
+    from {
+        prefix-list-filter 4-BOGON-PREFIXES orlonger;
+    }
+    then reject;
+}
+term REJECT-IXP-PREFIXES {
+    from {
+        prefix-list-filter 4-IXP-PREFIXES orlonger;
+    }
+    then reject;
+}
+term REJECT-TOO-MANY-HOPS {
+    from as-path AS-PATH-HOP-LIMIT;
+    then reject;
+}
+
+# second filter stage - peer level
+
+term NO-EXPORT {
+    from community NO_EXPORT;
+    then reject;
+}
+term NO-ADVERTISE {
+    from community NO_ADVERTISE;
+    then reject;
+}
