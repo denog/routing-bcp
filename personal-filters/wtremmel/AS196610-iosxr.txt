@@ -1,0 +1,60 @@
+route-policy unwanted-routes
+  if validation-state is invalid then
+    drop
+  endif
+  if destination in ipv4-unwanted then
+    drop
+  endif
+  if destination in ipv6-unwanted then
+    drop
+  endif
+  if as-path in private-as-numbers then
+    drop
+  endif
+  pass
+end-policy
+!
+prefix-set ipv4-unwanted
+  0.0.0.0/0 ge 25 le 32,
+  0.0.0.0/8 le 32,
+  0.0.0.0/0 ge 1 le 7,
+  127.0.0.0/8 le 32,
+  169.254.0.0/16 le 32,
+  192.88.99.0/24 le 32,
+  192.168.0.0/16 le 32,
+  172.16.0.0/12 le 32,
+  10.0.0.0/8 le 32,
+  100.64.0.0/10 le 32,
+  224.0.0.0/4 le 32,
+  240.0.0.0/4 le 32,
+  192.0.2.0/24 le 32,
+  198.51.100.0/24 le 32,
+  203.0.113.0/24 le 32,
+  80.81.192.0/21 le 32,
+  206.82.104.0/22 le 32,
+  206.130.10.0/24 le 32,
+  185.1.170.0/23 le 32,
+  185.1.210.0/23 le 32,
+  185.1.208.0/23 le 32,
+  185.1.192.0/23 le 32,
+  91.214.253.0/24 le 32
+end-set
+!
+prefix-set ipv6-unwanted
+  ::/0 ge 49 le 128,
+  ::/0 ge 1 le 18,
+  2001:db8::/32 le 128,
+  2001:7f8::/64 le 128,
+  2001:504:36::/64 le 128,
+  2001:7f8:9e::/64 le 128,
+  2001:7f8:3d::/64 le 128,
+  2001:7f8:44::/64 le 128,
+  2a02:c50:db8::/48 le 128
+end-set
+!
+as-path-set private-as-numbers
+  ios-regex '_0_',
+  ios-regex '_23456_',
+  ios-regex '_(6449[6-9]|64[5-9][0-9]{2}|65[0-4][0-9]{2}|655[0-4][0-9]|6555[01])_',
+  ios-regex '_42[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_'
+end-set
