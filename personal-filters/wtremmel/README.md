@@ -9,7 +9,7 @@ So all filters are auto-generated using templates. However, all filters contain 
 ## Explanation of filter
 
 1. We block all RPKI invalid prefixes.
-1. This policy is applied to both IPv6 and IPv4 neighbors. Reason: With BGP you can easily announce IPv4 prefixes over an IPv6 session and vice versa. So from you cannot know from the type of session what prefixes need to be checked.
+1. This policy is applied to both IPv6 and IPv4 neighbors. Reason: With BGP you can easily announce IPv4 prefixes over an IPv6 session and vice versa. So you cannot know from the type of session what prefixes need to be checked.
 1. *ipv4-unwanted* contains the following:
     - prefixes and more specifics of them are blocked
     - no default route
